@@ -322,10 +322,7 @@ class HealthKitReporter {
     arguments.addAll(predicate.map);
     return _statisticsCollectionQueryChannel
         .receiveBroadcastStream(arguments)
-        .map((event) => Statistics.fromJson(jsonDecode(event)))
-        .takeWhile((element) =>
-            element.startTimestamp * 1000 <=
-            enumerateTo.millisecondsSinceEpoch);
+        .map((event) => Statistics.fromJson(jsonDecode(event)));
   }
 
   /// Request write/read access to various [HealthKit] types.
