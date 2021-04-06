@@ -302,6 +302,32 @@ class HealthKitReporter {
     });
   }
 
+  static Stream<Statistics> statisticsCollectionQueryStream(
+    QuantityType type,
+    String unit,
+    Predicate predicate,
+    DateTime anchorDate,
+    DateTime enumerateFrom,
+    DateTime enumerateTo,
+    DateComponents intervalComponents,
+  ) {
+    final arguments = {
+      'identifier': type.identifier,
+      'unit': unit,
+      'anchorTimestamp': anchorDate.millisecondsSinceEpoch,
+      'enumerateFrom': enumerateFrom.millisecondsSinceEpoch,
+      'enumerateTo': enumerateTo.millisecondsSinceEpoch,
+      'intervalComponents': intervalComponents.map,
+    };
+    arguments.addAll(predicate.map);
+    return _statisticsCollectionQueryChannel
+        .receiveBroadcastStream(arguments)
+        .map((event) => Statistics.fromJson(jsonDecode(event)))
+        .takeWhile((element) =>
+            element.startTimestamp * 1000 <=
+            enumerateTo.millisecondsSinceEpoch);
+  }
+
   /// Request write/read access to various [HealthKit] types.
   /// Provide [toRead] and/or [toWrite].
   /// If you want only read data, please set [toWrite] as an empty array.
